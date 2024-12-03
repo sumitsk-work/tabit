@@ -1,11 +1,10 @@
 {
-  "name": "FocusTask",
-  "short_name": "FocusTask",
-  "description": "A task management and time tracking app",
-  "start_url": "/",
-  "display": "standalone", 
+  "name": "Tabit",
+  "short_name": "Tabit",
+  "start_url": "./index.html",
+  "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#007bff",
+  "theme_color": "#4CAF50",
   "icons": [
     {
       "src": "icons/icon-192x192.png",
