@@ -1,0 +1,443 @@
+---------------
+app.js
+---------------
+// app.js
+
+let taskId = 0;
+let tasks = [];
+
+function addTask() {
+    const taskName = document.getElementById('task-name').value;
+    const taskDuration = parseInt(document.getElementById('task-duration').value);
+
+    if (!taskName || !taskDuration) {
+        alert('Please enter both task name and duration');
+        return;
+    }
+
+    const newTask = {
+        id: taskId++,
+        name: taskName,
+        duration: taskDuration,
+        remainingTime: taskDuration * 60, // in seconds
+        timerRunning: false,
+    };
+
+    tasks.push(newTask);
+    renderTasks();
+    clearInputs();
+}
+
+function renderTasks() {
+    const taskList = document.getElementById('task-list');
+    taskList.innerHTML = ''; // Clear current list
+
+    tasks.forEach((task, index) => {
+        const taskElement = document.createElement('div');
+        taskElement.classList.add('task-item');
+        taskElement.setAttribute('data-id', task.id);
+        taskElement.setAttribute('draggable', true); // Make the task draggable
+        taskElement.setAttribute('ondragstart', `drag(event, ${index})`);
+
+        taskElement.innerHTML = `
+            <div class="task-drag">
+                <span class="drag-icon">⋮</span> <!-- Three dots for dragging -->
+            </div>
+            <div>
+                <input type="text" class="task-name-input" id="task-name-${task.id}" value="${task.name}" placeholder="Task Name">
+                <div>
+                    <input type="number" class="task-duration-input" id="task-hours-${task.id}" value="${Math.floor(task.duration / 60)}" placeholder="Hours">
+                    <input type="number" class="task-duration-input" id="task-minutes-${task.id}" value="${task.duration % 60}" placeholder="Minutes">
+                </div>
+                <span class="timer" id="timer-${task.id}">${formatTime(task.remainingTime)}</span>
+            </div>
+            <div class="button-group">
+                <button onclick="toggleTimer(${task.id})">${task.timerRunning ? 'Stop' : 'Start'} Timer</button>
+                <button class="edit-button" onclick="saveTask(${task.id})">Save</button>
+                <button class="delete-button" onclick="deleteTask(${task.id})">Delete</button>
+            </div>
+        `;
+
+        taskList.appendChild(taskElement);
+    });
+}
+
+// Handle the drag and drop functionality to reorder tasks
+function drag(event, index) {
+    event.dataTransfer.setData("text", index);
+}
+
+document.getElementById('task-list').addEventListener('dragover', (event) => {
+    event.preventDefault(); // Necessary to allow drop
+});
+
+document.getElementById('task-list').addEventListener('drop', (event) => {
+    const fromIndex = event.dataTransfer.getData("text");
+    const toIndex = event.target.closest('.task-item').getAttribute('data-id');
+    swapTasks(fromIndex, toIndex);
+});
+
+function swapTasks(fromIndex, toIndex) {
+    const task = tasks[fromIndex];
+    tasks[fromIndex] = tasks[toIndex];
+    tasks[toIndex] = task;
+    renderTasks(); // Re-render tasks
+}
+
+
+function saveTask(taskId) {
+    const taskName = document.getElementById(`task-name-${taskId}`).value;
+    const taskHours = parseInt(document.getElementById(`task-hours-${taskId}`).value);
+    const taskMinutes = parseInt(document.getElementById(`task-minutes-${taskId}`).value);
+    
+    const task = tasks.find(t => t.id === taskId);
+    task.name = taskName;
+    task.duration = (taskHours * 60) + taskMinutes;  // Save duration in minutes
+
+    task.remainingTime = task.duration * 60;  // Reset remaining time
+    task.timerRunning = false;  // Reset timer status
+
+    renderTasks();
+}
+
+
+function toggleTimer(taskId) {
+    const task = tasks.find(t => t.id === taskId);
+
+    if (task.timerRunning) {
+        clearInterval(task.timerInterval); // Stop the timer
+        task.timerRunning = false;
+    } else {
+        task.timerInterval = setInterval(() => {
+            task.remainingTime--;
+            document.getElementById(`timer-${task.id}`).innerText = formatTime(task.remainingTime);
+            if (task.remainingTime <= 0) {
+                clearInterval(task.timerInterval);
+                task.timerRunning = false;
+            }
+        }, 1000);
+        task.timerRunning = true;
+    }
+
+    renderTasks();  // Re-render tasks to reflect the updated timer state
+}
+
+
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs < 10 ? '0' + secs : secs}`;
+}
+
+function clearInputs() {
+    document.getElementById('task-name').value = '';
+    document.getElementById('task-duration').value = '';
+}
+
+function deleteTask(taskId) {
+    tasks = tasks.filter(task => task.id !== taskId);
+    renderTasks();
+}
+
+function editTask(taskId) {
+    const task = tasks.find(t => t.id === taskId);
+    const newName = prompt('Edit task name:', task.name);
+    const newDuration = prompt('Edit task duration (in minutes):', task.duration);
+
+    if (newName && newDuration) {
+        task.name = newName;
+        task.duration = parseInt(newDuration);
+        task.remainingTime = task.duration * 60;
+        renderTasks();
+    }
+}
+
+function moveTaskUp(taskId) {
+    const index = tasks.findIndex(t => t.id === taskId);
+    if (index > 0) {
+        [tasks[index], tasks[index - 1]] = [tasks[index - 1], tasks[index]];
+        renderTasks();
+    }
+}
+
+function moveTaskDown(taskId) {
+    const index = tasks.findIndex(t => t.id === taskId);
+    if (index < tasks.length - 1) {
+        [tasks[index], tasks[index + 1]] = [tasks[index + 1], tasks[index]];
+        renderTasks();
+    }
+}
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then((registration) => {
+            console.log('Service Worker registered: ', registration);
+        }).catch((error) => {
+            console.log('Service Worker registration failed: ', error);
+        });
+    });
+}
+
+-----------------
+index.html
+----------------
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>FocusTask - Task Management & Time Tracking</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="app.js"></script>
+</head>
+<body>
+
+<header>
+    <h1>FocusTask</h1>
+    <p>Manage Your Tasks, Build Habits, Stay Focused</p>
+</header>
+
+<div class="task-container">
+    <div class="add-task">
+        <input type="text" id="task-name" placeholder="Task Name">
+        <input type="number" id="task-duration" placeholder="Duration (min)">
+        <button onclick="addTask()">Add Task</button>
+    </div>
+
+    <div id="task-list" class="task-list">
+        <!-- Task items will be appended here -->
+    </div>
+</div>
+
+<footer>
+    <p>FocusTask | All rights reserved | 2024</p>
+</footer>
+
+</body>
+</html>
+
+------------------
+styles.css
+------------------
+/* styles.css */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #6fa3f8, #3a8dff);
+    color: #fff;
+}
+
+header {
+    background-color: #333;
+    padding: 20px;
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5em;
+}
+
+header p {
+    margin: 5px 0;
+    font-size: 1.2em;
+}
+
+.task-container {
+    padding: 20px;
+}
+
+.add-task {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.add-task input {
+    padding: 10px;
+    font-size: 1em;
+    border-radius: 5px;
+    border: none;
+}
+
+.add-task button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.add-task button:hover {
+    background-color: #0056b3;
+}
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.task-item {
+    background-color: #fff;
+    color: #333;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.task-item:hover {
+    transform: scale(1.05);
+}
+
+.timer {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+
+button {
+    padding: 8px 12px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+.edit-button {
+    background-color: #ffc107;
+}
+
+.delete-button {
+    background-color: #dc3545;
+}
+
+footer {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 10px;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+}
+
+
+/* Existing styles for desktop layout */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f4f7;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #007bff;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.task-container {
+    margin: 20px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.add-task {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.task-name-input {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.add-task button {
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.task-item {
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.task-item .button-group {
+    display: flex;
+    gap: 10px;
+}
+
+button {
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+/* New mobile-specific styles */
+@media (max-width: 768px) {
+    .add-task {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .add-task input, .add-task button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .task-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .task-item .button-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .task-item .button-group button {
+        width: 100%;
+    }
+}

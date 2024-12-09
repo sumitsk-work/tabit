@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>FocusTask - Task Management & Time Tracking</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="app.js"></script>
+
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+<header>
+    <h1>FocusTask</h1>
+    <p>Manage Your Tasks, Build Habits, Stay Focused</p>
+</header>
+
+<div class="task-container">
+    <div class="add-task">
+        <input type="text" id="task-name" placeholder="Task Name">
+        <input type="number" id="task-duration" placeholder="Duration (min)">
+        <select id="task-priority">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+        </select>
+        <button onclick="addTask()">Add Task</button>
+    </div>
+
+    <div id="task-list" class="task-list">
+        <!-- Task items will be appended here -->
+    </div>
+</div>
+
+</body>
+</html>
