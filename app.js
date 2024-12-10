@@ -58,6 +58,27 @@ function renderTasks() {
     });
 }
 
+// Show the notification
+function showTaskCompletedNotification(taskName) {
+    // Check if the browser supports notifications
+    if ("Notification" in window) {
+        // Request notification permission if not granted
+        if (Notification.permission === "granted") {
+            // Create and display the notification
+            new Notification(`Hey, "${taskName}" is completed!`);
+        } else if (Notification.permission !== "denied") {
+            // Ask for permission if it hasn't been denied
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    new Notification(`Hey, "${taskName}" is completed!`);
+                }
+            });
+        }
+    } else {
+        console.log("This browser does not support notifications.");
+    }
+}
+
 // Format seconds into mm:ss
 function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
