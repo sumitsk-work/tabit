@@ -2,7 +2,7 @@
     "name": "Tabit",
     "short_name": "Tabit",
     "description": "A task manager with time tracking and habit building.",
-    "start_url": "/",
+    "start_url": "./index.html",
     "display": "standalone", 
     "background_color": "#ffffff", 
     "theme_color": "#007bff",

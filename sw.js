@@ -1,51 +1,23 @@
-const CACHE_NAME = 'tabit-cache-v1';
-const urlsToCache = [
-    '/',
-    '/index.html',
-    '/styles.css',
-    '/app.js',
-    '/manifest.json',
-    '/icons/icon-192x192.png',
-    '/icons/icon-512x512.png'
-];
-
-// Install service worker and cache files
-self.addEventListener('install', (event) => {
+self.addEventListener('install', function(event) {
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then((cache) => {
-                return cache.addAll(urlsToCache);
-            })
+      caches.open('food-finder-cache').then(function(cache) {
+        return cache.addAll([
+          './',
+          './index.html',
+          './styles.css',
+          './app.js',
+          './icons/icon-192x192.png',
+          './icons/icon-512x512.png'
+        ]);
+      })
     );
-});
-
-// Activate service worker
-self.addEventListener('activate', (event) => {
-    const cacheWhitelist = [CACHE_NAME];
-    event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames.map((cacheName) => {
-                    if (!cacheWhitelist.includes(cacheName)) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        })
-    );
-});
-
-// Fetch from cache or network
-self.addEventListener('fetch', (event) => {
+  });
+  
+  self.addEventListener('fetch', function(event) {
     event.respondWith(
-        caches.match(event.request)
-            .then((cachedResponse) => {
-                // If the request is in the cache, return it
-                if (cachedResponse) {
-                    return cachedResponse;
-                }
-                // Otherwise, fetch from network
-                return fetch(event.request);
-            })
+      caches.match(event.request).then(function(response) {
+        return response || fetch(event.request);
+      })
     );
-});
+  });
+  
