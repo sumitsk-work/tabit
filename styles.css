@@ -8,20 +8,53 @@ body {
 }
 
 header {
-    background-color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding: 20px;
-    text-align: center;
+    background-color: white; /* Set the background color of the header to white */
+    /* background-image: url('icons/lamp.png'); Add the background image separately */
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: 75px 75px; /* Set the size of the GIF */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    color: black; /* Set text color to black for better contrast on white background */
 }
-
-header h1 {
-    margin: 0;
+.header-left {
+    flex: 1;
+}
+.header-logo {
+    width: 100px; /* Adjust size as needed */
+    height: auto;
+}
+.header-right {
+    flex: 3;
+    text-align: left;
+}
+.header-right h1 {
+    font-family: 'Courier New', Courier, monospace; 
     font-size: 2.5em;
+    color: #333;
+    margin-bottom: 10px;
 }
 
-header p {
-    margin: 5px 0;
-    font-size: 1.2em;
+.line {
+    width: 80px;
+    height: 2px;
+    background-color: #4CAF50;
+    margin-bottom: 15px;
 }
+
+.header-right p {
+    font-size: 1.1em;
+    color: #777;
+}
+
+
+
+
+
+
 
 .task-container {
     padding: 20px;
@@ -31,6 +64,7 @@ header p {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
 }
 
 .add-task input, .add-task select {
@@ -38,6 +72,7 @@ header p {
     font-size: 1em;
     border-radius: 5px;
     border: none;
+    flex: 1 1 25px; /* Allow input fields to shrink and grow */
 }
 
 .add-task button {
@@ -46,6 +81,7 @@ header p {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
 .add-task button:hover {
@@ -67,8 +103,26 @@ header p {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
 }
 
+/* Task Priority Colors */
+.high-priority {
+    background-color: #f8d7da; /* Light red */
+    border-left: 5px solid red;
+}
+
+.medium-priority {
+    background-color: #fff3cd; /* Light yellow */
+    border-left: 5px solid orange;
+}
+
+.low-priority {
+    background-color: #d4edda; /* Light green */
+    border-left: 5px solid green;
+}
+
+/* Timer and Buttons */
 .timer {
     font-size: 1.5em;
     font-weight: bold;
@@ -100,20 +154,9 @@ button:hover {
     background-color: #dc3545;
 }
 
-/* Priority styles */
-.high-priority {
-    border-left: 5px solid red;
-    background-color: #ffe5e5; /* Light red background */
-}
-
-.medium-priority {
-    border-left: 5px solid orange;
-    background-color: #fff3cd; /* Light yellow background */
-}
-
-.low-priority {
-    border-left: 5px solid green;
-    background-color: #d4edda; /* Light green background */
+/* Icons */
+button i {
+    font-size: 1.2em;
 }
 
 /* Mobile responsiveness */
@@ -123,8 +166,8 @@ button:hover {
         align-items: stretch;
     }
 
-    .add-task input, .add-task button {
-        width: 100%;
+    .add-task input, .add-task select, .add-task button {
+        /* width: 100%; */
         margin-bottom: 10px;
     }
 
@@ -134,11 +177,19 @@ button:hover {
     }
 
     .task-item .button-group {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        align-items: center;
     }
 
     .task-item .button-group button {
-        width: 100%;
+        width: auto;
     }
+
+    /* Style for the icon images */
+.button-group button img.icon {
+    width: 20px;  /* Set the size of the icon */
+    height: 20px;
+    margin-left: 5px; /* Add some space between the text and icon */
 }
+}
+

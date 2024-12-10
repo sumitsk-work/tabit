@@ -1,30 +1,9 @@
------------------------
-Project Structure
------------------------
-Tabit/
-├── index.html
-├── styles.css
-├── app.js       
-├── sw.js        
-├── manifest.json
-├── icons/
-├── assets/
-└── README.md
------------------------
+# Tabit - Habit Tracker Web App
 
-Tabit v1.2 (Consider this as working)
+Tabit is a web application designed to help you track your habits and tasks. It allows you to add tasks with or without a timer, start and stop the timer, and view all your tasks on the homepage. You can also delete and add tasks easily, and each task has its own timer.
 
-1) it does the basic functionality
-2) it has some glitches
-
-------------------------------------------
-
-Tabit v1.3 (Do not consier this as working)
-
-1) it works good on phone
-2) still the drag and drop does not works
-3) the start and stop thing works well
-4) issues are with the editing button
-5) i dont want the start, edit and delete button throwing on my face
-
-------------------------------------------
+## Features:
+- Add and manage tasks.
+- Start/stop timers for tasks.
+- Track multiple tasks at once.
+- Simple and clean user interface.

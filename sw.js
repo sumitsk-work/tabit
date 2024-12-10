@@ -1,23 +1,22 @@
-self.addEventListener('install', function(event) {
-    event.waitUntil(
-      caches.open('food-finder-cache').then(function(cache) {
-        return cache.addAll([
-          './',
-          './index.html',
-          './styles.css',
-          './app.js',
-          './icons/icon-192x192.png',
-          './icons/icon-512x512.png'
-        ]);
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+      caches.open('focus-task-cache').then((cache) => {
+          return cache.addAll([
+              '/',
+              '/index.html',
+              '/styles.css',
+              '/app.js',
+              '/manifest.json',
+              '/icons/'
+          ]);
       })
-    );
-  });
-  
-  self.addEventListener('fetch', function(event) {
-    event.respondWith(
-      caches.match(event.request).then(function(response) {
-        return response || fetch(event.request);
+  );
+});
+
+self.addEventListener('fetch', (e) => {
+  e.respondWith(
+      caches.match(e.request).then((response) => {
+          return response || fetch(e.request);
       })
-    );
-  });
-  
+  );
+});

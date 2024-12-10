@@ -50,8 +50,8 @@ function renderTasks() {
             </div>
             <div class="button-group">
                 <button onclick="toggleTimer(${task.id})">${task.timerRunning ? 'Stop' : 'Start'} Timer</button>
-                <button onclick="editTask(${task.id})">Edit</button>
-                <button onclick="deleteTask(${task.id})">Delete</button>
+                <button onclick="editTask(${task.id})"> <img src="icons/edit-white.png" alt="Play/Pause" class="icon" /> </button>
+                <button onclick="deleteTask(${task.id})"> <img src="icons/trash-white.png" alt="Play/Pause" class="icon" /> </button>
             </div>
         `;
         taskList.appendChild(taskElement); // Append task element to the task list
@@ -79,6 +79,7 @@ function toggleTimer(taskId) {
                 clearInterval(task.timerInterval);
                 task.timerRunning = false;
             }
+            saveTasksToLocalStorage(); // Save the updated tasks after each second
         }, 1000);
         task.timerRunning = true;
     }
@@ -95,6 +96,7 @@ function editTask(taskId) {
         task.duration = parseInt(newDuration);
         task.remainingTime = task.duration * 60; // Reset remaining time
         renderTasks(); // Re-render tasks
+        saveTasksToLocalStorage(); // Save the updated tasks
     }
 }
 
@@ -125,16 +127,3 @@ function clearInputs() {
     document.getElementById('task-name').value = '';
     document.getElementById('task-duration').value = '';
 }
-
-// Register Service Worker
-// if ('serviceWorker' in navigator) {
-//     window.addEventListener('load', () => {
-//         navigator.serviceWorker.register('/sw.js')
-//             .then((registration) => {
-//                 console.log('Service Worker registered with scope:', registration.scope);
-//             })
-//             .catch((error) => {
-//                 console.log('Service Worker registration failed:', error);
-//             });
-//     });
-// }
