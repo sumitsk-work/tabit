@@ -58,26 +58,7 @@ function renderTasks() {
     });
 }
 
-// Show the notification
-function showTaskCompletedNotification(taskName) {
-    // Check if the browser supports notifications
-    if ("Notification" in window) {
-        // Request notification permission if not granted
-        if (Notification.permission === "granted") {
-            // Create and display the notification
-            new Notification(`Hey, "${taskName}" is completed!`);
-        } else if (Notification.permission !== "denied") {
-            // Ask for permission if it hasn't been denied
-            Notification.requestPermission().then(permission => {
-                if (permission === "granted") {
-                    new Notification(`Hey, "${taskName}" is completed!`);
-                }
-            });
-        }
-    } else {
-        console.log("This browser does not support notifications.");
-    }
-}
+
 
 // Format seconds into mm:ss
 function formatTime(seconds) {
@@ -101,12 +82,36 @@ function toggleTimer(taskId) {
                 clearInterval(task.timerInterval);
                 task.timerRunning = false;
                 document.getElementById(`timer-${task.id}`).innerText = "Task Completed";
+            
+             // Show notification when the task is completed
+             showTaskCompletedNotification(task.name);
             }
             saveTasksToLocalStorage(); // Save the updated tasks after each second
         }, 1000);
         task.timerRunning = true;
     }
     renderTasks(); // Re-render tasks after toggling the timer
+}
+
+// Show the notification
+function showTaskCompletedNotification(taskName) {
+    // Check if the browser supports notifications
+    if ("Notification" in window) {
+        // Request notification permission if not granted
+        if (Notification.permission === "granted") {
+            // Create and display the notification
+            new Notification(`Hey, "${taskName}" is completed!`);
+        } else if (Notification.permission !== "denied") {
+            // Ask for permission if it hasn't been denied
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    new Notification(`Hey, "${taskName}" is completed!`);
+                }
+            });
+        }
+    } else {
+        console.log("This browser does not support notifications.");
+    }
 }
 
 // Edit task name and duration
