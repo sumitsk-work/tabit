@@ -73,11 +73,13 @@ function toggleTimer(taskId) {
         task.timerRunning = false;
     } else {
         task.timerInterval = setInterval(() => {
-            task.remainingTime--;
-            document.getElementById(`timer-${task.id}`).innerText = formatTime(task.remainingTime);
-            if (task.remainingTime <= 0) {
+            if (task.remainingTime > 0) {
+                task.remainingTime--;
+                document.getElementById(`timer-${task.id}`).innerText = formatTime(task.remainingTime);
+            } else {
                 clearInterval(task.timerInterval);
                 task.timerRunning = false;
+                document.getElementById(`timer-${task.id}`).innerText = "Task Completed";
             }
             saveTasksToLocalStorage(); // Save the updated tasks after each second
         }, 1000);
