@@ -23,6 +23,7 @@ function addTask() {
         name: taskName,
         duration: taskDuration,
         remainingTime: taskDuration * 60, // Duration in seconds
+        endTime: null,
         timerRunning: false
     };
 
@@ -30,6 +31,12 @@ function addTask() {
     saveTasksToLocalStorage(); // Save tasks to localStorage
     renderTasks(); // Render the tasks on the screen
     clearInputs(); // Clear input fields
+}
+
+// Clear input fields
+function clearInputs() {
+    document.getElementById('task-name').value = '';
+    document.getElementById('task-duration').value = '';
 }
 
 // Render tasks on the screen
@@ -50,15 +57,13 @@ function renderTasks() {
             </div>
             <div class="button-group">
                 <button onclick="toggleTimer(${task.id})">${task.timerRunning ? 'Stop' : 'Start'} Timer</button>
-                <button onclick="editTask(${task.id})"> <img src="icons/edit-white.png" alt="Play/Pause" class="icon" /> </button>
-                <button onclick="deleteTask(${task.id})"> <img src="icons/trash-white.png" alt="Play/Pause" class="icon" /> </button>
+                <button onclick="editTask(${task.id})"> <img src="icons/edit-white.png" alt="Edit" class="icon" /> </button>
+                <button onclick="deleteTask(${task.id})"> <img src="icons/trash-white.png" alt="Delete" class="icon" /> </button>
             </div>
         `;
         taskList.appendChild(taskElement); // Append task element to the task list
     });
 }
-
-
 
 // Format seconds into mm:ss
 function formatTime(seconds) {
@@ -71,26 +76,38 @@ function formatTime(seconds) {
 function toggleTimer(taskId) {
     const task = tasks.find(t => t.id === taskId);
     if (task.timerRunning) {
-        clearInterval(task.timerInterval);
-        task.timerRunning = false;
+        stopTimer(task);
     } else {
-        task.timerInterval = setInterval(() => {
-            if (task.remainingTime > 0) {
-                task.remainingTime--;
-                document.getElementById(`timer-${task.id}`).innerText = formatTime(task.remainingTime);
-            } else {
-                clearInterval(task.timerInterval);
-                task.timerRunning = false;
-                document.getElementById(`timer-${task.id}`).innerText = "Task Completed";
-            
-             // Show notification when the task is completed
-             showTaskCompletedNotification(task.name);
-            }
-            saveTasksToLocalStorage(); // Save the updated tasks after each second
-        }, 1000);
-        task.timerRunning = true;
+        startTimer(task);
     }
     renderTasks(); // Re-render tasks after toggling the timer
+}
+
+// Start the timer
+function startTimer(task) {
+    task.endTime = Date.now() + task.remainingTime * 1000;
+    task.timerRunning = true;
+
+    task.timerInterval = setInterval(() => {
+        const remainingTime = Math.max(0, Math.floor((task.endTime - Date.now()) / 1000));
+
+        if (remainingTime === 0) {
+            stopTimer(task);
+            document.getElementById(`timer-${task.id}`).innerText = "Task Completed";
+            showTaskCompletedNotification(task.name);
+        } else {
+            task.remainingTime = remainingTime;
+            document.getElementById(`timer-${task.id}`).innerText = formatTime(remainingTime);
+        }
+        saveTasksToLocalStorage(); // Save the updated tasks after each second
+    }, 1000);
+}
+
+// Stop the timer
+function stopTimer(task) {
+    clearInterval(task.timerInterval);
+    task.timerRunning = false;
+    task.endTime = null;
 }
 
 // Show the notification
@@ -145,13 +162,7 @@ function loadTasksFromLocalStorage() {
     const savedTasks = localStorage.getItem('tasks');
     if (savedTasks) {
         tasks = JSON.parse(savedTasks); // Parse the saved tasks
-        taskId = tasks.length > 0 ? tasks[tasks.length - 1].id + 1 : 0; // Set taskId based on the last task ID
-        renderTasks(); // Render tasks when the page is loaded
+        taskId = tasks.length > 0 ? tasks[tasks.length - 1].id + 1 : 0; // Update taskId based on the saved tasks
+        renderTasks(); // Render the tasks on the screen
     }
-}
-
-// Clear input fields after adding a task
-function clearInputs() {
-    document.getElementById('task-name').value = '';
-    document.getElementById('task-duration').value = '';
 }
